@@ -1,12 +1,11 @@
-package io.pileworx.workshop
+package io.pileworx.workshop.team
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
-import io.pileworx.workshop.common.akka.AkkaImplicits
+import io.pileworx.workshop.team.common.akka.AkkaImplicits
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object Application extends App with AkkaImplicits {

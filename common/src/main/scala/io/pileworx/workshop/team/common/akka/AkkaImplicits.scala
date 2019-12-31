@@ -1,12 +1,12 @@
-package io.pileworx.workshop.common.akka
+package io.pileworx.workshop.team.common.akka
 
 import akka.actor.ActorSystem
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.language.postfixOps
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.language.postfixOps
 
 trait AkkaImplicits {
   implicit val system: ActorSystem = ActorSystem("workshop-actor-system")

@@ -39,10 +39,10 @@ lazy val port = (project in file("port")).dependsOn(app)
 lazy val root = (project in file(".")).dependsOn(port)
   .enablePlugins(JavaAppPackaging)
   .settings(
-    packageName in Docker := "pileworx/workshop",
+    packageName in Docker := "pileworx/workshop-team-service",
     version in Docker := workshopV,
     dockerExposedPorts := Seq(8080)
   )
   .settings(
-    name := "pileworx-workshop-starter"
+    name := "pileworx-workshop-team-service"
   )

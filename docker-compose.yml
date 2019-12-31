@@ -1,12 +1,12 @@
 version: '3.7'
 services:
-  workshop:
-    image: pileworx/rebound:0.2.2-SNAPSHOT
+  workshop-team:
+    image: pileworx/workshop-team
     restart: always
     ports:
       - 8080:8080
     networks:
-      - workshop-net
+      - workshop
     environment:
 networks:
-  workshop-net:
+  workshop:
