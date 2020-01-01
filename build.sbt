@@ -15,11 +15,16 @@ lazy val sharedDependencies = Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpV,
   "com.typesafe.akka" %% "akka-http-xml" % akkaHttpV,
   "com.typesafe.akka" %% "akka-stream" % akkaV,
+  "com.typesafe.akka" %% "akka-serialization-jackson" % akkaV,
+  "com.typesafe.akka" %% "akka-persistence-typed" % akkaV,
+  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % akkaV,
   "com.typesafe.akka" %% "akka-slf4j" % akkaV,
-  "ch.qos.logback" % "logback-classic" % logbackV,
+  "ch.qos.logback" % "logback-classic" % logbackV
+)
 
+lazy val testDependencies = Seq(
   "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpV % Test,
-  "com.typesafe.akka" %% "akka-testkit" % akkaV % Test,
+  "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaV % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaV % Test,
   "org.scalatest" %% "scalatest" % scalatestV % Test,
   "org.scalamock" %% "scalamock" % scalamockV % Test
@@ -27,10 +32,13 @@ lazy val sharedDependencies = Seq(
 
 lazy val common = (project in file("common"))
   .settings(
-    libraryDependencies ++= sharedDependencies
+    libraryDependencies ++= (sharedDependencies ++ testDependencies)
   )
 
 lazy val domain = (project in file("domain")).dependsOn(common)
+  .settings(
+    libraryDependencies ++= testDependencies
+  )
 
 lazy val app = (project in file("app")).dependsOn(domain)
 
