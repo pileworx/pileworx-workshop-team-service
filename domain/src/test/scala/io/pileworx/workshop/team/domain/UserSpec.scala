@@ -1,10 +1,6 @@
 package io.pileworx.workshop.team.domain
 
 import io.pileworx.workshop.team.domain.command.{Confirmed, CreateUser, OperationResult}
-import org.scalatest.wordspec.AnyWordSpecLike
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.testkit.typed.scaladsl.LogCapturing
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
@@ -12,23 +8,15 @@ import akka.cluster.sharding.typed.scaladsl.Entity
 import akka.cluster.typed.Cluster
 import akka.cluster.typed.Join
 import akka.persistence.typed.PersistenceId
-import com.typesafe.config.ConfigFactory
-import org.scalatest.matchers.should.Matchers
+import com.typesafe.config.{Config, ConfigFactory}
+import org.scalatest.{Matchers, WordSpecLike}
 
 object UserSpec {
-  val config = ConfigFactory.parseString("""
-      akka.actor.provider = cluster
-      akka.remote.classic.netty.tcp.port = 0
-      akka.remote.artery.canonical.port = 0
-      akka.remote.artery.canonical.hostname = 127.0.0.1
-
-      akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
-      akka.persistence.journal.inmem.test-serialization = on
-      """)
+  val config: Config = ConfigFactory.load("test.conf")
 }
 
 class UserSpec extends ScalaTestWithActorTestKit(UserSpec.config)
-  with AnyWordSpecLike
+  with WordSpecLike
   with Matchers
   with LogCapturing {
 

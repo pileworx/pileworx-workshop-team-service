@@ -14,7 +14,7 @@ stages:
 jobs:
   include:
     - stage: test
-      script: sbt clean coverage test coverageReport coverageAggregate codacyCoverage
+      script: build.sh
     - stage: deploy
     - script: >-
         "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin &&

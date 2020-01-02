@@ -1,7 +1,7 @@
 lazy val workshopV = "0.0.1-SNAPSHOT"
 lazy val akkaHttpV = "10.1.11"
 lazy val akkaV = "2.6.1"
-lazy val scalatestV = "3.1.0"
+lazy val scalatestV = "3.0.8"
 lazy val scalamockV = "4.4.0"
 lazy val logbackV = "1.2.3"
 
@@ -32,17 +32,25 @@ lazy val testDependencies = Seq(
 
 lazy val common = (project in file("common"))
   .settings(
-    libraryDependencies ++= (sharedDependencies ++ testDependencies)
+    libraryDependencies ++= (sharedDependencies ++ testDependencies),
+    coverageEnabled := true
   )
 
 lazy val domain = (project in file("domain")).dependsOn(common)
   .settings(
-    libraryDependencies ++= testDependencies
+    libraryDependencies ++= testDependencies,
+    coverageEnabled := true
   )
 
 lazy val app = (project in file("app")).dependsOn(domain)
+  .settings(
+    coverageEnabled := true
+  )
 
 lazy val port = (project in file("port")).dependsOn(app)
+  .settings(
+    coverageEnabled := true
+  )
 
 lazy val root = (project in file(".")).dependsOn(port)
   .enablePlugins(JavaAppPackaging)
@@ -52,5 +60,9 @@ lazy val root = (project in file(".")).dependsOn(port)
     dockerExposedPorts := Seq(8080)
   )
   .settings(
-    name := "pileworx-workshop-team-service"
+    name := "pileworx-workshop-team-service",
+    coverageEnabled := true
+  )
+  .aggregate(
+    common, domain, app, port
   )
