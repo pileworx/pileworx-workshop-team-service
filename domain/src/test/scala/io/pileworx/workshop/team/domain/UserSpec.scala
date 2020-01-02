@@ -1,12 +1,9 @@
 package io.pileworx.workshop.team.domain
 
-import io.pileworx.workshop.team.domain.command.{Confirmed, CreateUser, OperationResult}
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import akka.actor.testkit.typed.scaladsl.LogCapturing
-import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.cluster.sharding.typed.scaladsl.Entity
-import akka.cluster.typed.Cluster
-import akka.cluster.typed.Join
+import io.pileworx.workshop.team.domain.command.{Confirmed, CreateUser, OperationResult, UpdateUser}
+import akka.actor.testkit.typed.scaladsl.{LogCapturing, ScalaTestWithActorTestKit}
+import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, Entity}
+import akka.cluster.typed.{Cluster, Join}
 import akka.persistence.typed.PersistenceId
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.{Matchers, WordSpecLike}
@@ -44,6 +41,21 @@ class UserSpec extends ScalaTestWithActorTestKit(UserSpec.config)
       val ref = ClusterSharding(system).entityRefFor(User.TypeKey, username)
       ref ! CreateUser(username, email, firstName, middleName, lastName, probe.ref)
       probe.expectMessage(Confirmed)
+    }
+
+    "update User" in {
+      val probe = createTestProbe[OperationResult]()
+      val ref = ClusterSharding(system).entityRefFor(User.TypeKey, username)
+      ref ! UpdateUser(email, firstName, middleName, lastName, probe.ref)
+      probe.expectMessage(Confirmed)
+    }
+
+    "fail update of User if no User exists" in {
+      val invalidUser = "invalid"
+      val probe = createTestProbe[OperationResult]()
+      val ref = ClusterSharding(system).entityRefFor(User.TypeKey, invalidUser)
+      ref ! UpdateUser(email, firstName, middleName, lastName, probe.ref)
+      probe.expectNoMessage()
     }
   }
 }

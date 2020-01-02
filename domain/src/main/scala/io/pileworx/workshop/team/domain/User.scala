@@ -3,8 +3,7 @@ package io.pileworx.workshop.team.domain
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
+import akka.persistence.typed.scaladsl.{EventSourcedBehavior, Effect}
 import io.pileworx.workshop.team.common.akka.serializable.Cbor
 import io.pileworx.workshop.team.domain.User.ReplyEffect
 import io.pileworx.workshop.team.domain.command.{Confirmed, CreateUser, Rejected, UpdateUser, UserCmd}
@@ -16,7 +15,7 @@ case class User(
   name: Name
 ) extends Cbor {
   def applyCommand(cmd: UserCmd[_]): ReplyEffect = cmd match {
-    case create: CreateUser => Effect.reply(create.replyTo)(Rejected("User is already created"))
+    case create: CreateUser => Effect.reply(create.replyTo)(Rejected("User already exists."))
     case update: UpdateUser => Effect.persist(UserUpdated(update)).thenReply(update.replyTo)(_ => Confirmed)
   }
 
