@@ -2,19 +2,15 @@ language: scala
 scala:
    - 2.12.8
 jdk:
-  - oraclejdk11
-services:
-  - docker
-
+  - openjdk11
 stages:
   - test
   - name: deploy
     if: branch = master AND type = push AND fork = false
-
 jobs:
   include:
     - stage: test
-      script: build.sh
+      script: ./build.sh
     - stage: deploy
     - script: >-
         "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin &&
