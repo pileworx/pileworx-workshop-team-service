@@ -4,7 +4,6 @@ import io.pileworx.workshop.team.domain.command.{Confirmed, CreateUser, Operatio
 import akka.actor.testkit.typed.scaladsl.{LogCapturing, ScalaTestWithActorTestKit}
 import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, Entity}
 import akka.cluster.typed.{Cluster, Join}
-import akka.persistence.typed.PersistenceId
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.{Matchers, WordSpecLike}
 
@@ -24,7 +23,7 @@ class UserSpec extends ScalaTestWithActorTestKit(UserSpec.config)
     Cluster(system).manager ! Join(Cluster(system).selfMember.address)
 
     sharding.init(Entity(User.TypeKey) { entityContext =>
-      User(PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId))
+      User(entityContext.entityId, Set.empty)
     })
   }
 
