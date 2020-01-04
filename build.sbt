@@ -5,10 +5,19 @@ lazy val scalatestV = "3.0.8"
 lazy val scalamockV = "4.4.0"
 lazy val logbackV = "1.2.3"
 
-ThisBuild / organization := "io.pileworx.workshop"
-ThisBuild / version      := workshopV
-ThisBuild / scalaVersion := "2.13.1"
-ThisBuild / scalacOptions := Seq("-feature", "-deprecation", "-encoding", "utf8")
+val commonSetting = Seq(
+  version := workshopV,
+  organization := "io.pileworx.workshop",
+  scalaVersion := "2.13.1",
+  scalacOptions := Seq("-feature", "-deprecation", "-encoding", "utf8"),
+  assemblyMergeStrategy in assembly := {
+    case "module-info.class" => MergeStrategy.discard
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+  },
+  test in assembly := {}
+)
 
 lazy val sharedDependencies = Seq(
   "com.typesafe.akka" %% "akka-http" % akkaHttpV,
@@ -31,37 +40,36 @@ lazy val testDependencies = Seq(
 )
 
 lazy val common = (project in file("common"))
+  .settings(commonSetting: _*)
   .settings(
     libraryDependencies ++= (sharedDependencies ++ testDependencies),
-    coverageEnabled := true
+    assemblyJarName in assembly := "team-common.jar"
   )
 
 lazy val domain = (project in file("domain")).dependsOn(common)
+  .settings(commonSetting: _*)
   .settings(
     libraryDependencies ++= testDependencies,
-    coverageEnabled := true
+    assemblyJarName in assembly := "team-domain.jar"
   )
 
 lazy val app = (project in file("app")).dependsOn(domain)
+  .settings(commonSetting: _*)
   .settings(
-    coverageEnabled := true
+    assemblyJarName in assembly := "team-app.jar"
   )
 
 lazy val port = (project in file("port")).dependsOn(app)
+  .settings(commonSetting: _*)
   .settings(
-    coverageEnabled := true
+    assemblyJarName in assembly := "team-port.jar"
   )
 
 lazy val root = (project in file(".")).dependsOn(port)
-  .enablePlugins(JavaAppPackaging)
-  .settings(
-    packageName in Docker := "pileworx/workshop-team-service",
-    version in Docker := workshopV,
-    dockerExposedPorts := Seq(8080)
-  )
+  .settings(commonSetting: _*)
   .settings(
     name := "pileworx-workshop-team-service",
-    coverageEnabled := true
+    mainClass in assembly := Some("io.pileworx.workshop.team.Application")
   )
   .aggregate(
     common, domain, app, port
