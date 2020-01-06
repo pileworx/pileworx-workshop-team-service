@@ -1,7 +1,7 @@
 package io.pileworx.workshop.team.domain
 
-import akka.actor.typed.Behavior
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.actor.typed.{ActorSystem, Behavior}
+import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, Entity, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, RetentionCriteria}
 import io.pileworx.workshop.team.common.akka.serializable.Cbor
@@ -13,6 +13,12 @@ object User {
   type ReplyEffect = akka.persistence.typed.scaladsl.ReplyEffect[UserEvent, State]
 
   val TypeKey: EntityTypeKey[UserCmd[_]] = EntityTypeKey[UserCmd[_]]("User")
+
+  def init(system: ActorSystem[_]): Unit = {
+    ClusterSharding(system).init(Entity(TypeKey) { entityContext =>
+      User(entityContext.entityId, Set("user-tag"))
+    }.withRole("write-model"))
+  }
 
   def apply(id: String, eventProcessorTags: Set[String]): Behavior[UserCmd[_]] = {
     EventSourcedBehavior.withEnforcedReplies[UserCmd[_], UserEvent, State](

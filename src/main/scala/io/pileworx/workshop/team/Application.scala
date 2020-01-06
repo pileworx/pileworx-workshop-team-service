@@ -1,27 +1,28 @@
 package io.pileworx.workshop.team
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Route
-import io.pileworx.workshop.team.common.akka.AkkaImplicits
+import akka.actor.typed.{ActorSystem, Behavior}
+import akka.actor.typed.scaladsl.Behaviors
+import com.typesafe.config.ConfigFactory
+import io.pileworx.workshop.team.domain.User
+import io.pileworx.workshop.team.port.primary.rest.{RestServer, UserRestPort}
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
+object Application extends App {
+  val config = ConfigFactory.load()
+  val system = ActorSystem[Nothing](Guardian(), config.getString("pileworx.application.name"), config)
+}
 
-object Application extends App with AkkaImplicits {
+object Guardian {
+  def apply(): Behavior[Nothing] = {
+    Behaviors.setup[Nothing] { context =>
+      val system = context.system
+      val httpPort = system.settings.config.getInt("pileworx.http.port")
 
-  val routes = Route(null)
-  val httpPort = if(sys.env.contains("HTTP_PORT")) sys.env("HTTP_PORT").asInstanceOf[Int] else 8080
-  val serverBinding: Future[Http.ServerBinding] = Http().bindAndHandle(routes, "0.0.0.0", httpPort)
+      User.init(system)
 
-  serverBinding.onComplete {
-    case Success(bound) =>
-      println(s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
-    case Failure(e) =>
-      Console.err.println("Server could not start!")
-      e.printStackTrace()
-      system.terminate()
+      val userRestPort = new UserRestPort()(context.system)
+      new RestServer(userRestPort.userRoutes, httpPort, context.system, system.settings.config).start()
+
+      Behaviors.empty
+    }
   }
-
-  Await.result(system.whenTerminated, Duration.Inf)
 }

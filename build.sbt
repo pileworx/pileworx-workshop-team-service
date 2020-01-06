@@ -28,7 +28,8 @@ lazy val sharedDependencies = Seq(
   "com.typesafe.akka" %% "akka-persistence-typed" % akkaV,
   "com.typesafe.akka" %% "akka-cluster-sharding-typed" % akkaV,
   "com.typesafe.akka" %% "akka-slf4j" % akkaV,
-  "ch.qos.logback" % "logback-classic" % logbackV
+  "ch.qos.logback" % "logback-classic" % logbackV,
+  "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8"
 )
 
 lazy val testDependencies = Seq(
